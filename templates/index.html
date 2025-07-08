@@ -1,0 +1,258 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ascend Career | Resume Analyzer + Job Tracker</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body style="background-color: #f9f9f9; font-family: 'Inter', sans-serif; margin: 0;">
+
+<nav class="navbar">
+  <h1 class="logo">📝 Ascend Career</h1>
+  <div class="nav-links">
+   
+    
+    {% if 'user_id' in session %}
+      <span style="color: white; font-weight: bold;"> Hi, {{ session['username'] }}</span>
+      <a href="{{ url_for('upload_resume') }}">Upload Resume</a>
+      <a href="/blog">Blog</a>
+      <a href="{{ url_for('tracker') }}">Job Tracker</a>
+      <a href="{{ url_for('confirm_logout') }}">Logout</a>
+      
+    {% else %}
+      <a href="{{ url_for('login') }}">Login</a>
+    {% endif %}
+  </div>
+</nav>
+
+
+  <!-- 💼 Welcome Section -->
+  <section class="">
+    <div class="card" style="text-align: center; ">
+      <h2>WELCOME</h2>
+      <p style="font-size: 1.1rem; color: #444;">
+        Strategize your career growth with AI-powered resume insights and a refined job tracking experience.
+      </p>
+      
+      <div style="margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+        <a href="/upload" class="btn primary-btn">Start Analyzing</a>
+        <a href="/tracker" class="btn secondary-btn">View Job Tracker</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 🌟 Features Section -->
+  <section class="container dashboard-grid">
+    <div class="card">
+      <h3>Resume Analyzer</h3>
+      <p>Get a match score between your resume and job description.</p>
+      <img src="https://thumbs.dreamstime.com/b/resume-magnifying-glass-human-resource-recruitment-32972767.jpg" alt="Resume Analyzer" style="max-width: 100%; margin-top: 1rem;">
+    </div>
+    <div class="card">
+      <h3>Smart Resume Improver</h3>
+      <p>Instant AI suggestions to boost your resume content.</p>
+      <img src="https://cdn-blog.novoresume.com/articles/how-to-write-a-resume-with-ai/AI-cover-letter-to-matching-resume.png" alt="Smart Resume Improver" style="max-width: 100%; margin-top: 1rem;">
+    </div>
+    <div class="card">
+      <h3>Job Tracker & Dashboard Insights </h3> 
+      <p>Track companies , roles and visualize with insightful charts.</p>
+     
+    <img src="https://cdn.prod.website-files.com/635c591378332f38be25d45f/678f676c8dfda6c3df305d3f_job%20tracke-new-hero-p-800.webp" alt="Dashboard Insights" style="max-width: 100%; margin-top: 1rem;">
+    </div>
+  </section>
+
+  <!-- 🧠 How It Works -->
+  <section class="container">
+    <div class="card " >
+      <h2>How It Works</h2>
+
+         <div class=" card inner-box" >
+         <h2> 📤 Step 1</h2>
+         <p> Upload your resume</p>
+         <img src="https://www.myperfectresume.com/wp-content/uploads/2024/08/Upload-your-resume-.svg" alt="Upload Resume" style="max-width: 70%; margin-top: 1rem;">
+    
+        </div>
+        <div class=" card inner-box">
+         <h2> 📝 Step 2</h2>
+        <p> Paste the job description</p>
+        <img src="https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRa7sJAmU7EoXWqNnMTe-a7kIchTykDyDIjGgkNDVf7c2Z8OG15" alt="Paste Job Description" style="max-width: 58%; margin-top: 1rem;">
+        
+        </div>
+        <div class="card inner-box">
+         <h2> 📈  Step 3</h2>
+        <p>View your resume's match score</p> 
+        <img src="https://www.myperfectresume.com/wp-content/uploads/2024/08/Review-checker-report.svg" alt="View Match Score" style="max-width: 70%; margin-top: 1rem;">
+        </div>
+        <div class="card inner-box">
+         <h2> 🛠️ Step 4</h2>
+        <p> Improve it instantly</p>
+        <img src="https://www.myperfectresume.com/wp-content/uploads/2024/08/Optimize-using-our-builder.svg"  alt="Improve Resume" style="max-width: 70%; margin-top: 1rem;">
+        </div>
+        <div class="card inner-box">
+         <h2> 📅 Step 5</h2>
+        <p> Track all your applications</p>
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKsqJQFLfGvxqlVSkdXpDhKy1VNFO56AukWH5QFIYcpJ4WdASX" alt="Paste Job Description" style="max-width: 47%; margin-top: 1rem;">
+        </div>
+        <div class="card inner-box">
+         <h2> 📊 Step 6</h2>
+        <p> View your dashboard</p>
+        <img src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQxQWWLwMktI25_S_XC-WDy39kmyQGfryqFjTKLjGUB17tj8MZI" alt ="View Dashboard" style="max-width: 43%; margin-top: 1rem;">
+        </div>
+  </section>
+
+  <!-- 💡 Call to Action -->
+  <section class="">
+    <div class="card" style="text-align: center;">
+      <h2>Ready to land your dream job?</h2>
+      <p>Let’s optimize your resume and stay on top of your applications!</p>
+      <a href="/upload" class="btn primary-btn"> Get Started Now</a>
+    </div>
+  </section>
+
+  <section class="container" style="margin: 4rem auto;">
+  <h2 style="color: #1e3a8a;">Career Resources & Blogs</h2>
+
+  <div class="card" style="margin-top: 1rem; ">
+    <h3 style="color : #1e3a8a"> Top 10 Resume Mistakes to Avoid</h3>
+    <p>Boost your interview chances by avoiding these common pitfalls in your resume. This article guides you through simple corrections you can make today.</p>
+    <a href="/blog/resume-mistakes" class="btn secondary-btn">Read More</a>
+  </div>
+
+  <div class="card" style="margin-top: 2rem; " >
+    <h3 style="color : #1e3a8a"> How to Use AI to Improve Your Job Search</h3>
+    <p>Learn how AI tools like resume matchers, job trackers, and keyword optimizers can supercharge your applications in 2025.</p>
+    <a href="/blog/ai-job-search" class="btn secondary-btn">Read More</a>
+  </div>
+</section>
+
+
+  <!-- ✅ About Section -->
+  <section class="">
+    <div class="card">
+      <h2>About Ascend Career</h2>
+    <p style="font-size: 1.05rem; color: #444; line-height: 1.8;">
+      <strong>Ascend Career</strong> is an intelligent, AI-driven career advancement platform designed to optimize and simplify the job search experience. Leveraging cutting-edge Natural Language Processing (NLP), the platform analyzes resumes against job descriptions to generate precise match scores and offer actionable improvement suggestions. Ascend Career goes beyond resume optimization by providing a comprehensive job application tracker, enabling users to manage applications, monitor deadlines, and track progress efficiently. Its integrated visual dashboard offers clear insights into application trends, match score evolution, and company-specific performance, empowering users to make data-informed career decisions. Whether you're a recent graduate or a seasoned professional, Ascend Career delivers a streamlined, secure, and user-friendly solution to help you apply strategically and elevate your career trajectory.
+      
+    </div>
+  </section>
+
+<section class="">
+  <div class="card">
+    <h2 style="text-align: center; color: #1e3a8a;">Success Stories</h2>
+    <p style="text-align: center; font-size: 1.05rem; color: #444;">
+      Discover how Ascend Career has helped students and professionals land interviews, improve their resumes, and stay on top of their job search.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 2rem;">
+      
+      <div style="background-color: #fbfbfc; padding: 1rem 1.2rem; border-left: 4px solid #fafbfc; border-radius: 8px;">
+        <p style="font-style: italic; color: #2c3e50;">
+          “Ascend Career helped me organize my job applications, and the AI resume analyzer gave me insights I never noticed before. I finally got placed at <strong>Infosys</strong>.”
+        </p>
+        <p style="font-weight: bold; margin-top: 0.5rem;">– Aishwarya R., B.Tech Graduate</p>
+      </div>
+
+      <div style="background-color: #fbfbfc; padding: 1rem 1.2rem; border-left: 4px solid #fafbfc; border-radius: 8px;">
+        <p style="font-style: italic; color: #2c3e50;">
+          “As a fresher, I had no clue how to improve my resume. Ascend Career’s suggestions were game-changing. I landed 3 interviews within a week!”
+        </p>
+        <p style="font-weight: bold; margin-top: 0.5rem;">– Sandeep K., Final Year CS Student</p>
+      </div>
+
+      <div style="background-color: #fbfbfc; padding: 1rem 1.2rem; border-left: 4px solid #fafbfc; border-radius: 8px;">
+        <p style="font-style: italic; color: #2c3e50;">
+          “The match score helped me tailor my resume to the job description and boosted my shortlisting chances. It really works.”
+        </p>
+        <p style="font-weight: bold; margin-top: 0.5rem;">– Priya N., Junior Data Analyst</p>
+      </div>
+
+      <div style="background-color: #fbfbfc; padding: 1rem 1.2rem; border-left: 4px solid#fafbfc; border-radius: 8px;">
+        <p style="font-style: italic; color: #2c3e50;">
+          “I used Ascend Career to track all my applications during campus placements. The dashboard made everything so easy to manage.”
+        </p>
+        <p style="font-weight: bold; margin-top: 0.5rem;">– Arjun M., Engineering Student</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+  <!-- ❓ FAQ Section -->
+<section class="">
+  <div class="card">
+    <h2>Frequently Asked Questions</h2>
+
+    <details class="faq-item">
+      <summary>How does the resume analyzer work?</summary>
+      <p>It uses NLP models to compare your resume against the job description and generate a match score along with improvement suggestions.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Can I download the improved resume?</summary>
+      <p>Yes! After analysis and improvement, you’ll get the option to download your enhanced resume in PDF format.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Is my resume data safe?</summary>
+      <p>Absolutely. Your uploaded data is processed securely and never stored permanently on our servers.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Can I track multiple job applications?</summary>
+      <p>Yes! The job tracker allows you to add, update, and manage as many job applications as you want.</p>
+    </details>
+
+    <details class="faq-item">
+      <summary>Is Ascend Career free to use?</summary>
+      <p>Yes, Ascend Career is completely free and built for students and freshers to boost their career growth.</p>
+    </details>
+  </div>
+</section>
+
+<!--Contact Details-->
+
+
+    <!-- 🔻 Footer with Navigation -->
+<footer style="background-color: #2563eb; color: #cbd5e1; padding: 2rem 1rem; margin-top: 4rem;">
+  <div style="max-width: 1200px; margin: auto; display: flex; flex-wrap: wrap; justify-content: space-between;">
+    
+    <!-- Logo & About -->
+    <div style="flex: 1 1 250px; margin-bottom: 1rem;">
+      <h3 style="color: #cbd5e1;">📝 Ascend Career</h3>
+      <p style="color: #cbd5e1; font-size: 0.95rem;">
+        AI-powered career toolkit for resume analysis, improvement, and job tracking – all in one place.
+      </p>
+    </div>
+
+    <!-- Quick Links -->
+    <div style="flex: 1 1 200px; margin-bottom: 1rem;">
+      <h4 style="color:#cbd5e1;">Features</h4>
+      <ul style="list-style: none; padding-left: 0;">
+        <li><a href="/upload" style="color: #cbd5e1; text-decoration: none;">Resume Analyzer</a></li>
+        <li><a href="/tracker" style="color: #cbd5e1; text-decoration: none;">Job Tracker</a></li>
+        <li><a href="/score-plot" style="color: #cbd5e1; text-decoration: none;">Dashboard Insights</a></li>
+        <li><a href="/register" style="color: #cbd5e1; text-decoration: none;"> Register</a></li>
+        <li><a href="/login" style="color: #cbd5e1; text-decoration: none;"> Login</a></li>
+      </ul>
+    </div>
+
+    <!-- Contact Info -->
+    <div style="flex: 1 1 200px; margin-bottom: 1rem;">
+      <h4 style="color:#cbd5e1;">Contact Us</h4>
+      <ul style="list-style: none; padding-left: 0; color: #cbd5e1;">
+        <li style= "color: #cbd5e1;">Email: <strong>ascendcareer@gmail.com</strong> </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Copyright -->
+  <div style="text-align: center; margin-top: 2rem; font-size: 0.85rem; color: #94a3b8;">
+    © 2025 Ascend Career. All rights reserved.
+  </div>
+</footer>
+
+</body>
+</html>

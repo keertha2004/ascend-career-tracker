@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Improved Resume (AI)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+
+<nav class="navbar">
+    <h1 class="logo">📝 Ascend Career</h1>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/tracker">Job Tracker</a>
+    </div>
+  </nav>
+
+
+  <!-- 📝 Improved Resume Container -->
+  <div class="container">
+    <div class="card">
+      <h2> Your AI-Enhanced Resume</h2>
+      <p>This version has been tailored to better match your target job description.</p>
+
+      <!-- 🧠 Improved Resume Text -->
+      <textarea readonly class="improved-text">{{ improved_text }}</textarea>
+
+      <!-- 📄 PDF Download Form -->
+      <form action="/download_pdf" method="POST">
+        <input type="hidden" name="resume_text" value="{{ improved_text }}">
+        <button type="submit" class="btn">⬇ Download as PDF</button>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

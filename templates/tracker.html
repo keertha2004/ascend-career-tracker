@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Job Application Tracker | Ascend Career</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Inter', sans-serif; background-color: #f9f9f9;">
+
+  <!-- 🌐 Navbar -->
+  <nav class="navbar">
+    <h1 class="logo">📝 Ascend Career</h1>
+    <div class="nav-links">
+      <a href="/">Home</a>
+       <a href="/upload">Upload Resume</a>
+        <a href="/score-plot"> Stats Comparison</a>
+    </div>
+  </nav>
+
+  <!-- 📋 Tracker Section -->
+  <section class="container" style="max-width: 960px; margin: 2rem auto;">
+    <!-- Add Job Form -->
+    <div class="card">
+      <h2>Add New Job Application</h2>
+      <form method="POST" class="form">
+        <div class="form-group">
+          <label for="company">Company</label>
+          <input type="text" name="company" id="company" required>
+        </div>
+        <div class="form-group">
+          <label for="title">Job Title</label>
+          <input type="text" name="title" id="title" required>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select name="status" id="status" required>
+            <option>Applied</option>
+            <option>Interviewing</option>
+            <option>Offer</option>
+            <option>Rejected</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="deadline">Deadline</label>
+          <input type="date" name="deadline" id="deadline" required>
+        </div>
+        <div class="form-group">
+          <label for="score">Match Score (%)</label>
+          <input type="number" name="score" step="0.01" id="score" required>
+        </div>
+        <button type="submit" class="btn primary-btn">➕ Add Job</button>
+      </form>
+    </div>
+
+    <!-- Job Applications Table -->
+    <div class="card" style="margin-top: 2rem;">
+      <h2>All Job Applications</h2>
+      <div style="overflow-x: auto;">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Job Title</th>
+              <th>Status</th>
+              <th>Deadline</th>
+              <th>Match Score (%)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td>{{ job.company_name }}</td>
+              <td>{{ job.job_title }}</td>
+              <td><span class="badge {{ job.application_status|lower }}">{{ job.application_status }}</span></td>
+              <td>{{ job.deadline }}</td>
+              
+              <td>{{ job.match_score }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+  
+
+</body>
+</html>
