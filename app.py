@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 import os
 import io
 import base64
+import MySQLdb.cursors
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 from io import BytesIO
@@ -19,11 +20,20 @@ from flask import session, flash
 from utils.db_config import get_db_connection
 from utils.auth import User
 from flask import Flask, session, redirect, url_for
-
+from flask_mysqldb import MySQL
 
 
 app = Flask(__name__)
 app.secret_key = 'f9a8e1c59c3f44be929e7c81d45a11ccd'
+
+# MySQL Configuration
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = 'Keerdbms@26'
+app.config['MYSQL_DB'] = 'job_tracker'
+
+mysql = MySQL(app)
+
 
 
 # --- Config ---
@@ -98,54 +108,75 @@ def download_pdf():
 
 # --- Job Tracker ---
 @app.route('/tracker', methods=['GET', 'POST'])
-
 def tracker():
-    if 'user_id' not in session:
-        flash ("Please log in to access the job tracker.", "warning")
-        return redirect(url_for('login'))
-    
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    if 'email' not in session:
+        return redirect('/login')
+
+    user_email = session['email']  # Get current user's email
 
     if request.method == 'POST':
         company = request.form['company']
         title = request.form['title']
         status = request.form['status']
         deadline = request.form['deadline']
-        match_score = float(request.form['score'])
+        score = request.form['score']
 
-        cursor.execute("""
-            INSERT INTO applications (company_name, job_title, application_status, deadline, match_score)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (company, title, status, deadline, match_score))
-        conn.commit()
+        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
 
-    cursor.execute("SELECT * FROM applications ORDER BY deadline")
-    jobs = cursor.fetchall()
-    conn.close()
-    return render_template("tracker.html", jobs=jobs)
+        cur.execute("""
+            INSERT INTO applications (company_name, job_title, status, deadline, match_score, user_email)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (company, title, status, deadline, score, user_email))
+        mysql.connection.commit()
+        cur.close()
+
+        return redirect('/tracker')
+
+    # ✅ Fetch only the jobs added by this user
+    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    cur.execute("SELECT * FROM applications WHERE user_email = %s", (user_email,))
+    jobs = cur.fetchall()
+    cur.close()
+
+    return render_template('tracker.html', jobs=jobs)
+
 
 # --- Score Plot Dashboard ---
 
+
 @app.route('/score-plot')
 def score_plot():
+    if 'email' not in session:
+        return redirect('/login')
+
+    user_email = session['email']
+
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    cursor.execute("SELECT company_name, match_score, application_status, deadline FROM applications ORDER BY deadline")
+    # 🚀 Only fetch jobs for the current user
+    cursor.execute("SELECT company_name, match_score, status, deadline FROM applications WHERE user_email = %s ORDER BY deadline", (user_email,))
     data = cursor.fetchall()
     conn.close()
 
-    companies = [row['company_name'] for row in data]
-    scores = [row['match_score'] for row in data]
-    statuses = [row['application_status'] for row in data]
-    deadlines = [row['deadline'].strftime("%Y-%m") for row in data]
+   # Filter out rows that have None for required fields
+    filtered_data = [row for row in data if row['match_score'] is not None and row['company_name'] and row['status'] and row['deadline']]
+
+    companies = [row['company_name'] for row in filtered_data]
+    scores = [row['match_score'] for row in filtered_data]
+    statuses = [row['status'] for row in filtered_data]
+    deadlines = [row['deadline'].strftime("%Y-%m") for row in filtered_data]
+
 
      # ✅ NEW: Summary statistics
     total_apps = len(data)
     low_score_count = sum(1 for score in scores if score is not None and score < 60)
 
-    avg_score = round(sum([s for s in scores if s is not None]) / len([s for s in scores if s is not None]), 2) if scores else 0
+    if scores:
+       avg_score = round(sum(scores) / len(scores), 2)
+    else:
+       avg_score = 0
+
 
     # (your existing chart generation code continues here...)
 
@@ -281,12 +312,14 @@ def login():
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id']
             session['username'] = user['username']
+            session['email'] = user['email']   # ✅ ADD THIS LINE
             flash("Login successful!", "success")
-            return redirect(url_for('home'))  # or wherever you want to redirect
+            return redirect(url_for('home'))
         else:
             flash("Invalid email or password.", "danger")
 
     return render_template('login.html')
+
 
 @app.route('/blog')
 def blog_home():

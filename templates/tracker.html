@@ -55,34 +55,35 @@
     </div>
 
     <!-- Job Applications Table -->
-    <div class="card" style="margin-top: 2rem;">
-      <h2>All Job Applications</h2>
-      <div style="overflow-x: auto;">
-        <table class="styled-table">
-          <thead>
-            <tr>
-              <th>Company</th>
-              <th>Job Title</th>
-              <th>Status</th>
-              <th>Deadline</th>
-              <th>Match Score (%)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for job in jobs %}
-            <tr>
-              <td>{{ job.company_name }}</td>
-              <td>{{ job.job_title }}</td>
-              <td><span class="badge {{ job.application_status|lower }}">{{ job.application_status }}</span></td>
-              <td>{{ job.deadline }}</td>
-              
-              <td>{{ job.match_score }}</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <!-- Job Applications Table -->
+<div class="card" style="margin-top: 2rem;">
+  <h2>All Job Applications</h2>
+  <div style="overflow-x: auto;">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Job Title</th>
+          <th>Status</th>
+          <th>Deadline</th>
+          <th>Match Score (%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for job in jobs %}
+        <tr>
+          <td>{{ job.company_name }}</td>
+          <td>{{ job.job_title }}</td>
+          <td><span class="badge {{ job.status|lower }}">{{ job.status }}</span></td>
+          <td>{{ job.deadline }}</td>
+          <td>{{ job.match_score }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
   </section>
   
 
