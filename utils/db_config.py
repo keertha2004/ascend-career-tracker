@@ -1,10 +1,10 @@
-import pymysql
+import psycopg2
 
 def get_db_connection():
-    return pymysql.connect(
-        host='localhost',
-        user='root',
-        password='Keerdbms@26',  # 🔒 change to your MySQL password
-        db='job_tracker',
-        cursorclass=pymysql.cursors.DictCursor
+    return psycopg2.connect(
+        host="dpg-d1n924umcj7s73brdnrg-a.singapore-postgres.render.com",
+        database="ascend_tracker_db",
+        user="ascend_tracker_db_user",
+        password="yH8bOkDeBoV1EwOscQ1epHr9fdhEHr2c",
+        port=5432
     )
