@@ -2,13 +2,14 @@ from flask import Flask, render_template, request, redirect, url_for, send_file
 import os
 import io
 import base64
-import MySQLdb.cursors
+import psycopg2
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from collections import defaultdict, Counter
+from MySQLdb.cursors import DictCursor
 
 from utils.resume_parser import extract_resume_text
 from utils.match_logic import calculate_match_score
@@ -20,20 +21,24 @@ from flask import session, flash
 from utils.db_config import get_db_connection
 from utils.auth import User
 from flask import Flask, session, redirect, url_for
-from flask_mysqldb import MySQL
+
 
 
 app = Flask(__name__)
 app.secret_key = 'f9a8e1c59c3f44be929e7c81d45a11ccd'
 
-# MySQL Configuration
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Keerdbms@26'
-app.config['MYSQL_DB'] = 'job_tracker'
+import psycopg2
+import psycopg2.extras
 
-mysql = MySQL(app)
-
+def get_db_connection():
+    conn = psycopg2.connect(
+        host=os.environ.get("DB_HOST"),
+        database=os.environ.get("DB_NAME"),
+        user=os.environ.get("DB_USER"),
+        password=os.environ.get("DB_PASSWORD")
+    )
+    conn.autocommit = True
+    return conn
 
 
 # --- Config ---
@@ -121,22 +126,27 @@ def tracker():
         deadline = request.form['deadline']
         score = request.form['score']
 
-        cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-
-        cur.execute("""
-            INSERT INTO applications (company_name, job_title, status, deadline, match_score, user_email)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (company, title, status, deadline, score, user_email))
-        mysql.connection.commit()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(""" 
+        INSERT INTO applications (company_name, job_title, status, deadline, match_score, user_email)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """,  (company, title, status, deadline, score, user_email))
+        conn.commit()
         cur.close()
+        conn.close()
+
 
         return redirect('/tracker')
 
     # ✅ Fetch only the jobs added by this user
-    cur = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
     cur.execute("SELECT * FROM applications WHERE user_email = %s", (user_email,))
     jobs = cur.fetchall()
     cur.close()
+    conn.close()
+
 
     return render_template('tracker.html', jobs=jobs)
 
@@ -304,10 +314,11 @@ def login():
         password = request.form['password']
 
         conn = get_db_connection()
-        cursor = conn.cursor()
+        cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         user = cursor.fetchone()
         conn.close()
+
 
         if user and check_password_hash(user['password_hash'], password):
             session['user_id'] = user['id']

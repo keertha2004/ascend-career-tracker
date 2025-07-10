@@ -1,6 +1,10 @@
+# Ignore environment & temporary files
+.env
 env/
 __pycache__/
 *.pyc
-instance/
-.env
-uploads/
+*.pyo
+*.pyd
+*.sqlite3
+*.log
+
