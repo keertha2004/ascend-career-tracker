@@ -9,7 +9,7 @@ from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from collections import defaultdict, Counter
-from MySQLdb.cursors import DictCursor
+from psycopg2.extras import DictCursor
 
 from utils.resume_parser import extract_resume_text
 from utils.match_logic import calculate_match_score
@@ -294,17 +294,20 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         email = request.form['email']
-        password = generate_password_hash(request.form['password'])
+        password_hash = generate_password_hash(request.form['password'])
 
         conn = get_db_connection()
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
-                       (username, email, password))
+        cursor.execute(
+            "INSERT INTO users (username, email, password_hash) VALUES (%s, %s, %s)",
+            (username, email, password_hash)
+        )
         conn.commit()
         conn.close()
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
 
 
 @app.route('/login', methods=['GET', 'POST'])
