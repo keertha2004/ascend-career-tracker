@@ -162,7 +162,8 @@ def score_plot():
     user_email = session['email']
 
     conn = get_db_connection()
-    cursor = conn.cursor()
+    cursor = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
 
     # 🚀 Only fetch jobs for the current user
     cursor.execute("SELECT company_name, match_score, status, deadline FROM applications WHERE user_email = %s ORDER BY deadline", (user_email,))
