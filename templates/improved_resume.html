@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Improved Resume (AI)</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <style>
+    textarea.improved-text {
+      width: 100%;
+      resize: none;
+      overflow: hidden;
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      font-family: 'Segoe UI', sans-serif;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <h1 class="logo">📝 Ascend Career</h1>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/tracker">Job Tracker</a>
+      <a href="/blog">Blog</a>
+      <a href="/logout">Logout</a>
+    </div>
+  </nav>
+
+  <!-- 📝 Improved Resume Container -->
+  <div class="container">
+    <div class="card">
+      <h2>Your AI-Enhanced Resume</h2>
+      <p>This version has been tailored to better match your target job description.</p>
+      <p>Feel free to format this enhanced resume using a design template you prefer</p>
+
+      <!-- 🧠 Improved Resume Text (Auto-sizing Textarea) -->
+      <textarea class="improved-text" id="improvedText" readonly>{{ improved_text }}</textarea>
+
+      <!-- 📄 PDF Download Form -->
+      <form action="/download_pdf" method="POST">
+        <input type="hidden" name="resume_text" value="{{ improved_text }}">
+        <button type="submit" class="btn">⬇ Download as PDF</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    // Auto-resize textarea on load
+    window.onload = function () {
+      const textarea = document.getElementById("improvedText");
+      textarea.style.height = "auto";
+      textarea.style.height = textarea.scrollHeight + "px";
+    };
+  </script>
+
+</body>
+</html>

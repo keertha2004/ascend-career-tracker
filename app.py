@@ -18,6 +18,7 @@ from psycopg2.extras import DictCursor
 from utils.resume_parser import extract_resume_text
 from utils.match_logic import calculate_match_score
 from utils.db_config import get_db_connection
+from utils.resume_improver import generate_improved_resume
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session, flash
@@ -81,7 +82,7 @@ def upload_resume():
 
             resume_text = extract_resume_text(filepath)
             match_score, semantic_score, keyword_score, matched_keywords, missing_keywords = calculate_match_score(resume_text, job_desc)
-            
+
             return render_template(
     'result.html',
     resume_text=resume_text,
@@ -95,44 +96,72 @@ def upload_resume():
 
     return render_template('upload.html')
 
-@app.route('/download_match_report', methods=['POST'])
-def download_match_report():
+# --- Improve Resume ---
+@app.route('/improve', methods=['POST'])
+def improve_resume():
     resume_text = request.form['resume_text']
     job_desc = request.form['job_desc']
 
-    match_score, semantic_score, keyword_score, matched_keywords, missing_keywords = calculate_match_score(resume_text, job_desc)
+    improved_text = generate_improved_resume(resume_text, job_desc)
+    return render_template("improved_resume.html", improved_text=improved_text)
 
-    # Create PDF
+# --- Download PDF ---
+
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.units import inch
+from io import BytesIO
+from flask import send_file, request
+from reportlab.platypus import HRFlowable
+
+
+
+
+@app.route('/download_pdf', methods=['POST'])
+def download_pdf():
+    # If you're storing structured resume data in session, use that.
+    # But here we assume you're posting raw text for simplicity
+    text = request.form['resume_text']
     buffer = BytesIO()
-    doc = SimpleDocTemplate(buffer, pagesize=letter)
+
+    doc = SimpleDocTemplate(buffer, pagesize=letter,
+                            rightMargin=50, leftMargin=50,
+                            topMargin=50, bottomMargin=50)
+
     styles = getSampleStyleSheet()
-    story = []
+    title_style = ParagraphStyle(name='TitleStyle', fontSize=16, leading=20, spaceAfter=12, alignment=TA_CENTER)
+    heading_style = ParagraphStyle(name='HeadingStyle', fontSize=14, leading=18, spaceAfter=10)
+    body_style = styles['Normal']
+    body_style.spaceAfter = 6
 
-    story.append(Paragraph("Job Match Report", styles['Title']))
-    story.append(Spacer(1, 0.2 * inch))
+    flowables = []
     
-    story.append(Paragraph(f"<b>Match Score:</b> {match_score}%", styles['Normal']))
-    story.append(Paragraph(f"<b>Semantic Score:</b> {semantic_score}%", styles['Normal']))
-    story.append(Paragraph(f"<b>Keyword Score:</b> {keyword_score}%", styles['Normal']))
-    
-    story.append(Spacer(1, 0.2 * inch))
-    
-    story.append(Paragraph("<b>Matched Keywords:</b>", styles['Heading2']))
-    for kw in matched_keywords:
-        story.append(Paragraph(f"- {kw}", styles['Normal']))
-    
-    story.append(Spacer(1, 0.2 * inch))
-    
-    story.append(Paragraph("<b>Missing Keywords:</b>", styles['Heading2']))
-    for kw in missing_keywords:
-        story.append(Paragraph(f"- {kw}", styles['Normal']))
 
-    doc.build(story)
-    
+    # Parse and structure
+    sections = text.strip().split("────────────────────────────────────────")
+
+    for sec in sections:
+        for para in sec.strip().split("\n"):
+            para = para.strip()
+            if not para:
+                continue
+            elif para.lower().startswith("career summary"):
+                flowables.append(Paragraph(para, heading_style))
+            elif para.lower().startswith("name") or para.lower().startswith("email") or para.lower().startswith("phone"):
+                flowables.append(Paragraph(para, title_style))
+            elif para.lower().startswith("keywords"):
+                flowables.append(Spacer(1, 0.2 * inch))
+                flowables.append(Paragraph(para, heading_style))
+            else:
+                flowables.append(Paragraph(para, body_style))
+
+        flowables.append(Spacer(1, 0.15 * inch))
+
+    doc.build(flowables)
     buffer.seek(0)
-    
-    return send_file(buffer, as_attachment=True, download_name="job_match_report.pdf", mimetype='application/pdf')   
-
+    return send_file(buffer, as_attachment=True, download_name='Improved_Resume.pdf', mimetype='application/pdf')
 
 
 # --- Job Tracker ---
@@ -319,7 +348,7 @@ def score_plot():
     top_companies = [x[0] for x in sorted_data]
     top_scores = [x[1] for x in sorted_data]
     fig6a, ax6a = plt.subplots()
-    ax6a.barh(top_companies, top_scores, color="#0693D4")  # Blue-700
+    ax6a.barh(top_companies, top_scores, color="#60A5FA")  # Blue-700
     ax6a.set_title("🏆 Top Companies by Resume Match")
     ax6a.invert_yaxis()
     top_chart_url = generate_chart_image(fig6a)
@@ -329,7 +358,7 @@ def score_plot():
     months_applied = sorted(month_counter.keys())
     count_applied = [month_counter[m] for m in months_applied]
     fig7a, ax7a = plt.subplots()
-    ax7a.bar(months_applied, count_applied, color="#093672F6")  # Blue-200
+    ax7a.bar(months_applied, count_applied, color="#73B9B9F6")  # Blue-200
     ax7a.set_title("📅 Applications per Month")
     ax7a.set_xlabel("Month")
     ax7a.set_ylabel("Applications")

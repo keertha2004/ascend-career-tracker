@@ -9,30 +9,10 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: white;
+            background-color: #f9f9f9;
             margin: 0;
             padding: 0;
         }
-        .card-pair {
-  display: flex;
-  flex-direction: row;
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.card-pair .card {
-  flex: 1;
-  margin-bottom: 0; /* remove extra space since they’re side-by-side now */
-  min-width: 0;
-}
-
-/* Responsive stacking for smaller screens */
-@media (max-width: 768px) {
-  .card-pair {
-    flex-direction: column;
-  }
-}
-
 
         .container {
             max-width: 1200px;
@@ -40,16 +20,44 @@
             padding: 0 2rem;
         }
 
-        .card {
-    background: #fff;
-    padding: 1.8rem;
-    margin: 0 0 6px 0;  /* 👈 Only bottom margin */
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-    animation: fadeIn 0.8s ease-in-out;
-    width: 100%;
+        .collapsible h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
 }
 
+.collapsible .toggle-icon {
+  font-size: 1.3rem;
+  color: #555;
+  margin-left: 0.5rem;
+  user-select: none;
+  transition: transform 0.3s ease;
+}
+
+.collapsible .content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease, padding 0.3s ease;
+  padding-top: 0;
+}
+
+.collapsible.open .content {
+  max-height: 1000px;
+  padding-top: 1rem;
+}
+
+
+        .card {
+            background: #fff;
+            padding: 1.8rem;
+            margin: 1.5rem 0;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            animation: fadeIn 0.8s ease-in-out;
+        }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
@@ -107,47 +115,10 @@
             margin-left: 1.5rem;
             font-weight: 500;
         }
-
-        .card {
-  background: #fdfdfd;
-  border: 1px solid #ccc;
-  border-radius: 10px;
-  margin-bottom: 15px;
-  padding: 15px 20px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-  transition: all 0.3s ease;
-}
-
-.collapsible {
-  cursor: pointer;
-}
-
-.collapsible h3 {
-  margin: 0;
-  font-size: 1.1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.collapsible .toggle-icon {
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-}
-
-.collapsible.open .toggle-icon {
-  content: "➖";
-}
-
-.collapsible .content {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.4s ease;
-  padding-top: 0.8rem;
-}
-
-.collapsible.open .content {
-  max-height: 1000px; /* Enough to show full content */
+        @media (max-width: 768px) {
+    .container > div {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 
@@ -170,32 +141,31 @@
             text-align: center;
             margin: 2rem 0;
             font-size: 0.9rem;
-            color: #777;
+            color
+            : #777;
         }
+        .card {
+    width: 100%;
+}
 
-        @media (max-width: 768px) {
-            .container > div {
-                grid-template-columns: 1fr !important;
-            }
-        }
     </style>
 </head>
 <body>
 
-<!-- 🌐 Navbar -->
-<nav class="navbar">
-    <h1 class="logo" style="font-size: 1.5rem; color: white;">📝 Ascend Career</h1>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/upload">⬆ Upload Another</a>
-        <a href="/tracker">Job Tracker</a>
-        <a href="/blog">Blog</a>
-      <a href="{{ url_for('confirm_logout') }}">Logout</a>
-    </div>
-</nav>
+    <!-- 🌐 Navbar -->
+    <nav class="navbar">
+        <h1 class="logo" style="font-size: 1.5rem; color: white;">📝 Ascend Career</h1>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/upload">⬆ Upload Another</a>
+            <a href="/tracker">Job Tracker</a>
+        </div>
+    </nav>
 
-<!-- 📊 Results Section -->
-<section class="container">
+    <!-- 📊 Results Section -->
+    <section class="container">
+
+        <section class="container">
 
     <!-- 💡 Pro Tip -->
     <div class="tip-box">
@@ -204,8 +174,10 @@
 
     <div style="display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem;">
 
+    <!-- Top Row: Score, Matched, Missed -->
         <!-- 🎯 Score Circle -->
-        <div style="flex: 1; text-align: center;">
+
+                <div  style="flex: 1; text-align: center;">
             <h2>Resume Match Score</h2>
             <div class="progress-circle" data-percentage="{{ match_score | round(0) }}">
                 <span class="progress-text">{{ match_score | round(0) }}%</span>
@@ -218,77 +190,75 @@
             <p><strong>Semantic:</strong> {{ semantic_score }}%</p>
             <p><strong>Keyword:</strong> {{ keyword_score }}%</p>
         </div>
-
         <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
 
-            <!-- ✅ Matched Keywords -->
-            <div class="card" style="flex: 1;">
-                <h3> Matched Keywords</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                    {% for keyword in matched_keywords %}
-                        <span style="background-color: #d1fae5; padding: 0.3rem 0.6rem; border-radius: 12px; color: #065f46;">{{ keyword }}</span>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- ❌ Missing Keywords -->
-            <div class="card" style="flex: 1;">
-                <h3> Missing Keywords</h3>
-                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                    {% for keyword in missing_keywords %}
-                        <span style="background-color: #fee2e2; padding: 0.3rem 0.6rem; border-radius: 12px; color: #991b1b;">{{ keyword }}</span>
-                    {% endfor %}
-                </div>
-            </div>
+         <!-- ✅ Matched -->
+        <div class="card" style="flex: 1;">
+            <h3> Matched Keywords</h3>
+            <p style="color: #059669;">{{ matched_keywords | join(', ') }}</p>
         </div>
-<!-- 📄 JD + Resume Side-by-Side Cards -->
-<div class="card-pair">
-  <div class="card collapsible" onclick="toggleCollapse(this)">
-    <h3>
-      📄 Job Description
-      <span class="toggle-icon">▶</span>
-    </h3>
-    <div class="content">
-      <pre>{{ job_desc }}</pre>
-    </div>
-  </div>
 
-  <div class="card collapsible" onclick="toggleCollapse(this)">
-    <h3>
-      📄 Extracted Resume Text
-      <span class="toggle-icon">▶</span>
-    </h3>
-    <div class="content">
-      <pre>{{ resume_text }}</pre>
+        <!-- ❌ Missing -->
+        <div class="card" style="flex: 1;">
+            <h3> Missing Keywords</h3>
+            <p style="color: #dc2626;">{{ missing_keywords | join(', ') }}</p>
+        </div>
     </div>
+    </div>
+
+<div class="card collapsible" onclick="toggleCollapse(this)">
+  <h3>
+    📄 Job Description
+    <span class="toggle-icon">▶</span>
+  </h3>
+  <div class="content">
+    <pre>{{ job_desc }}</pre>
   </div>
 </div>
 
-        <!-- 📥 Download Match Report -->
-        <div class="container" style="text-align: center;">
-            <form action="/download_match_report" method="POST">
+<div class="card collapsible" onclick="toggleCollapse(this)">
+  <h3>
+    📄 Extracted Resume Text
+    <span class="toggle-icon">▶</span>
+  </h3>
+  <div class="content">
+    <pre>{{ resume_text }}</pre>
+  </div>
+</div>
+
+        <!-- ✨ Generate Improved Resume -->
+        <div class="card" style="text-align: center;">
+            <form action="/improve" method="POST">
                 <input type="hidden" name="resume_text" value="{{ resume_text }}">
                 <input type="hidden" name="job_desc" value="{{ job_desc }}">
-                <button class="btn-improve">📄 Download Match Report (PDF)</button>
+                <button type="submit" class="btn-improve">
+                    Generate Improved Resume
+                </button>
             </form>
         </div>
-    </div>
-</section>
 
-<!-- 🔻 Footer -->
-<footer>
-    <p>Driven by AI. Designed for Your Growth.</p>
-    <p>© 2025 Ascend Career</p>
-</footer>
-<script>
+    </section>
+
+    <script>
   function toggleCollapse(card) {
-    card.classList.toggle("open");
-    const icon = card.querySelector(".toggle-icon");
-    icon.textContent = card.classList.contains("open") ? "▼": "▶";
+    const isOpen = card.classList.contains("open");
+    document.querySelectorAll('.collapsible').forEach(c => {
+      c.classList.remove("open");
+      c.querySelector(".toggle-icon").textContent = "▶";
+    });
+    if (!isOpen) {
+      card.classList.add("open");
+      card.querySelector(".toggle-icon").textContent = "▼";
+    }
   }
 </script>
 
 
+    <!-- 🔻 Footer -->
+    <footer>
+        <p>Driven by AI. Designed for Your Growth.</p>
+        <p>© 2025 Ascend Career</p>
+    </footer>
 
 </body>
 </html>
