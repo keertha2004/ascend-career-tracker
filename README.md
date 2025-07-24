@@ -4,7 +4,6 @@
 A full-stack AI-powered career assistant that helps users:
 - Upload resumes & job descriptions
 - Check match scores
-- Improve their resumes with AI
 - Track job applications
 - Visualize their job search progress with charts
 
@@ -16,8 +15,6 @@ A full-stack AI-powered career assistant that helps users:
 ### 📄 Resume Matching & Improvement
 - Upload a resume (`.pdf` or `.docx`) and paste a job description
 - AI calculates a **match score** between your resume and the job
-- Suggests **resume improvements** based on the job role
-- Download the improved resume as a **PDF**
 
 ### 📊 Job Application Tracker
 - Add jobs with:
