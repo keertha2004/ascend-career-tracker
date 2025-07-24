@@ -3,10 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <title>Job Application Tracker | Ascend Career</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!-- Styling -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
+  <!-- Font Awesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 </head>
+
 <body style="font-family: 'Inter', sans-serif; background-color: #f9f9f9;">
 
   <!-- 🌐 Navbar -->
@@ -14,32 +20,34 @@
     <h1 class="logo">📝 Ascend Career</h1>
     <div class="nav-links">
       <a href="/">Home</a>
-       <a href="/upload">Upload Resume</a>
-        <a href="/score-plot"> Stats Comparison</a>
+      <a href="/upload">Upload Resume</a>
+      <a href="/score-plot">Stats Comparison</a>
+      <a href="{{ url_for('confirm_logout') }}">Logout</a>
     </div>
   </nav>
 
   <!-- 📋 Tracker Section -->
   <section class="container" style="max-width: 960px; margin: 2rem auto;">
+    
     <!-- Add Job Form -->
     <div class="card">
       <h2>Add New Job Application</h2>
-      <form method="POST" class="form">
+      <form method="POST" class="form" action="/tracker">
         <div class="form-group">
-          <label for="company">Company</label>
-          <input type="text" name="company" id="company" required>
+          <label for="company_name">Company</label>
+          <input type="text" name="company_name" id="company_name" required>
         </div>
         <div class="form-group">
-          <label for="title">Job Title</label>
-          <input type="text" name="title" id="title" required>
+          <label for="job_title">Job Title</label>
+          <input type="text" name="job_title" id="job_title" required>
         </div>
         <div class="form-group">
-          <label for="status">Status</label>
+          <label for="status">Application Status</label>
           <select name="status" id="status" required>
-            <option>Applied</option>
-            <option>Interviewing</option>
-            <option>Offer</option>
-            <option>Rejected</option>
+            <option value="Applied">Applied</option>
+            <option value="Interview">Interview</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Offer">Offer</option>
           </select>
         </div>
         <div class="form-group">
@@ -47,45 +55,58 @@
           <input type="date" name="deadline" id="deadline" required>
         </div>
         <div class="form-group">
-          <label for="score">Match Score (%)</label>
-          <input type="number" name="score" step="0.01" id="score" required>
+          <label for="match_score">Match Score (%)</label>
+          <input type="number" name="match_score" id="match_score" min="0" max="100" required>
         </div>
         <button type="submit" class="btn primary-btn">➕ Add Job</button>
       </form>
     </div>
 
     <!-- Job Applications Table -->
-    <!-- Job Applications Table -->
-<div class="card" style="margin-top: 2rem;">
-  <h2>All Job Applications</h2>
-  <div style="overflow-x: auto;">
-    <table class="styled-table">
-      <thead>
-        <tr>
-          <th>Company</th>
-          <th>Job Title</th>
-          <th>Status</th>
-          <th>Deadline</th>
-          <th>Match Score (%)</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for job in jobs %}
-        <tr>
-          <td>{{ job.company_name }}</td>
-          <td>{{ job.job_title }}</td>
-          <td><span class="badge {{ job.status|lower }}">{{ job.status }}</span></td>
-          <td>{{ job.deadline }}</td>
-          <td>{{ job.match_score }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
+    <div class="card" style="margin-top: 2rem;">
+      <h2>All Job Applications</h2>
+      <div style="overflow-x: auto;">
+        <table class="styled-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Job Title</th>
+              <th>Status</th>
+              <th>Deadline</th>
+              <th>Match Score (%)</th>
+              <th>Edit</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for job in jobs %}
+            <tr>
+              <td>{{ job.company_name }}</td>
+              <td>{{ job.job_title }}</td>
+              <td><span class="badge {{ job.status|lower }}">{{ job.status }}</span></td>
+              <td>{{ job.deadline }}</td>
+              <td>{{ job.match_score }}</td>
+              <!-- Edit Icon Column -->
+              <td>
+                <a href="{{ url_for('edit_job', job_id=job.id) }}" title="Edit Job">
+                  <i class="fas fa-pen"></i>
+                </a>
+              </td>
 
+            <!-- Delete Icon Column -->
+            <td>
+            <form action="{{ url_for('delete_job', job_id=job.id) }}" method="POST" style="display: inline;">
+            <button type="submit" title="Delete Job" aria-label="Delete Job"style="background: none; border: none; padding: 0; margin: 0; cursor: pointer;">
+            <i class="fas fa-trash" style="color: #dc3545;"></i>
+            </button>
+            </form>
+            </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </section>
-  
-
 </body>
 </html>

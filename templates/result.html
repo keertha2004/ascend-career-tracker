@@ -9,27 +9,51 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f9f9f9;
+            background-color: white;
+            margin: 0;
+            padding: 0;
+        }
+        .card-pair {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.card-pair .card {
+  flex: 1;
+  margin-bottom: 0; /* remove extra space since they’re side-by-side now */
+  min-width: 0;
+}
+
+/* Responsive stacking for smaller screens */
+@media (max-width: 768px) {
+  .card-pair {
+    flex-direction: column;
+  }
+}
+
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
         }
 
         .card {
-            background: #fff;
-            padding: 1.8rem;
-            margin: 1.5rem 0;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-            animation: fadeIn 0.8s ease-in-out;
-        }
+    background: #fff;
+    padding: 1.8rem;
+    margin: 0 0 6px 0;  /* 👈 Only bottom margin */
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    animation: fadeIn 0.8s ease-in-out;
+    width: 100%;
+}
+
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .match-score {
@@ -40,14 +64,8 @@
         }
 
         @keyframes popIn {
-            0% {
-                opacity: 0;
-                transform: scale(0.5);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
+            0% { opacity: 0; transform: scale(0.5); }
+            100% { opacity: 1; transform: scale(1); }
         }
 
         .tip-box {
@@ -73,65 +91,204 @@
         .btn-improve:hover {
             background-color: #1e40af;
         }
+
+        .navbar {
+            background-color: #2563eb;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin-left: 1.5rem;
+            font-weight: 500;
+        }
+
+        .card {
+  background: #fdfdfd;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  padding: 15px 20px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.collapsible {
+  cursor: pointer;
+}
+
+.collapsible h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.collapsible .toggle-icon {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.collapsible.open .toggle-icon {
+  content: "➖";
+}
+
+.collapsible .content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding-top: 0.8rem;
+}
+
+.collapsible.open .content {
+  max-height: 1000px; /* Enough to show full content */
+}
+
+
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+
+        h2, h3 {
+            margin-bottom: 0.75rem;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        footer {
+            text-align: center;
+            margin: 2rem 0;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        @media (max-width: 768px) {
+            .container > div {
+                grid-template-columns: 1fr !important;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <!-- 🌐 Navbar -->
-    <nav class="navbar" style="background-color:#2563eb;border-bottom: 1px solid #e5e7eb;">
-        <div class="nav-container" style="display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem;">
-            <h1 class="logo" style="font-size: 1.5rem;">📝 Ascend Career</h1>
-            <div class="nav-links" style="display: flex; gap: 1.5rem;">
-                <a href="/"> Home</a>
-                <a href="/upload">⬆Upload Another</a>
-                <a href="/tracker">Job Tracker</a>
+<!-- 🌐 Navbar -->
+<nav class="navbar">
+    <h1 class="logo" style="font-size: 1.5rem; color: white;">📝 Ascend Career</h1>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/upload">⬆ Upload Another</a>
+        <a href="/tracker">Job Tracker</a>
+        <a href="/blog">Blog</a>
+      <a href="{{ url_for('confirm_logout') }}">Logout</a>
+    </div>
+</nav>
+
+<!-- 📊 Results Section -->
+<section class="container">
+
+    <!-- 💡 Pro Tip -->
+    <div class="tip-box">
+        💡 <strong>Pro Tip:</strong> A score above 75% indicates a strong match! Improve further by tailoring your resume to keywords from the job post.
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 2rem; margin-top: 2rem;">
+
+        <!-- 🎯 Score Circle -->
+        <div style="flex: 1; text-align: center;">
+            <h2>Resume Match Score</h2>
+            <div class="progress-circle" data-percentage="{{ match_score | round(0) }}">
+                <span class="progress-text">{{ match_score | round(0) }}%</span>
+                <svg viewBox="0 0 36 36">
+                    <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="circle" stroke-dasharray="{{ match_score | round(0) }}, 100"
+                          d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                </svg>
+            </div>
+            <p><strong>Semantic:</strong> {{ semantic_score }}%</p>
+            <p><strong>Keyword:</strong> {{ keyword_score }}%</p>
+        </div>
+
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+
+            <!-- ✅ Matched Keywords -->
+            <div class="card" style="flex: 1;">
+                <h3> Matched Keywords</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for keyword in matched_keywords %}
+                        <span style="background-color: #d1fae5; padding: 0.3rem 0.6rem; border-radius: 12px; color: #065f46;">{{ keyword }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ❌ Missing Keywords -->
+            <div class="card" style="flex: 1;">
+                <h3> Missing Keywords</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                    {% for keyword in missing_keywords %}
+                        <span style="background-color: #fee2e2; padding: 0.3rem 0.6rem; border-radius: 12px; color: #991b1b;">{{ keyword }}</span>
+                    {% endfor %}
+                </div>
             </div>
         </div>
-    </nav>
+<!-- 📄 JD + Resume Side-by-Side Cards -->
+<div class="card-pair">
+  <div class="card collapsible" onclick="toggleCollapse(this)">
+    <h3>
+      📄 Job Description
+      <span class="toggle-icon">▶</span>
+    </h3>
+    <div class="content">
+      <pre>{{ job_desc }}</pre>
+    </div>
+  </div>
 
-    <!-- 📊 Match Score Result -->
-    <section class="container" style="max-width: 900px; margin: 2rem auto;">
-        <div class="card" style="text-align: center;">
-            <h2>Resume Match Score</h2>
-            <p class="match-score">
-                {{ match_score }}%
-            </p>
-        </div>
+  <div class="card collapsible" onclick="toggleCollapse(this)">
+    <h3>
+      📄 Extracted Resume Text
+      <span class="toggle-icon">▶</span>
+    </h3>
+    <div class="content">
+      <pre>{{ resume_text }}</pre>
+    </div>
+  </div>
+</div>
 
-        <!-- 💡 Tip Box -->
-        <div class="tip-box">
-            💡 <strong>Pro Tip:</strong> A score above 75% indicates a strong match! Improve further by tailoring your resume to keywords from the job post.
-        </div>
-
-        <!-- 📝 Job Description -->
-        <div class="card">
-            <h3>Job Description</h3>
-            <pre style="white-space: pre-wrap; font-size: 0.95rem; color: #333;">{{ job_desc }}</pre>
-        </div>
-
-        <!-- 📂 Extracted Resume -->
-        <div class="card">
-            <h3>Extracted Resume Text</h3>
-            <pre style="white-space: pre-wrap; font-size: 0.95rem; color: #333;">{{ resume_text }}</pre>
-        </div>
-
-        <!-- ✨ Improve Resume Button -->
-        <div class="card" style="text-align: center;">
-            <form action="/improve" method="POST">
+        <!-- 📥 Download Match Report -->
+        <div class="container" style="text-align: center;">
+            <form action="/download_match_report" method="POST">
                 <input type="hidden" name="resume_text" value="{{ resume_text }}">
                 <input type="hidden" name="job_desc" value="{{ job_desc }}">
-                <button type="submit" class="btn-improve">
-                    Generate Improved Resume
-                </button>
+                <button class="btn-improve">📄 Download Match Report (PDF)</button>
             </form>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- 🔻 Footer -->
-    <footer style="text-align: center; margin: 2rem 0; font-size: 0.9rem; color: #777;">
-        <p>Driven by AI. Designed for Your Growth.</p>
-        <p>© 2025 Ascend Career</p>
-    </footer>
+<!-- 🔻 Footer -->
+<footer>
+    <p>Driven by AI. Designed for Your Growth.</p>
+    <p>© 2025 Ascend Career</p>
+</footer>
+<script>
+  function toggleCollapse(card) {
+    card.classList.toggle("open");
+    const icon = card.querySelector(".toggle-icon");
+    icon.textContent = card.classList.contains("open") ? "▼": "▶";
+  }
+</script>
+
+
 
 </body>
 </html>

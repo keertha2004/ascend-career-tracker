@@ -8,13 +8,16 @@ from werkzeug.utils import secure_filename
 from io import BytesIO
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.units import inch
 from collections import defaultdict, Counter
 from psycopg2.extras import DictCursor
 
 from utils.resume_parser import extract_resume_text
 from utils.match_logic import calculate_match_score
 from utils.db_config import get_db_connection
-from utils.resume_improver import generate_improved_resume
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user, UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask import session, flash
@@ -77,39 +80,60 @@ def upload_resume():
             file.save(filepath)
 
             resume_text = extract_resume_text(filepath)
-            match_score = calculate_match_score(resume_text, job_desc)
+            match_score, semantic_score, keyword_score, matched_keywords, missing_keywords = calculate_match_score(resume_text, job_desc)
+            
+            return render_template(
+    'result.html',
+    resume_text=resume_text,
+    job_desc=job_desc,
+    match_score=match_score,
+    semantic_score=semantic_score,
+    keyword_score=keyword_score,
+    matched_keywords=matched_keywords,
+    missing_keywords=missing_keywords
+)
 
-            return render_template('result.html',
-                                   resume_text=resume_text,
-                                   job_desc=job_desc,
-                                   match_score=match_score)
     return render_template('upload.html')
 
-# --- Improve Resume ---
-@app.route('/improve', methods=['POST'])
-def improve_resume():
+@app.route('/download_match_report', methods=['POST'])
+def download_match_report():
     resume_text = request.form['resume_text']
     job_desc = request.form['job_desc']
 
-    improved_text = generate_improved_resume(resume_text, job_desc)
-    return render_template("improved_resume.html", improved_text=improved_text)
+    match_score, semantic_score, keyword_score, matched_keywords, missing_keywords = calculate_match_score(resume_text, job_desc)
 
-# --- Download PDF ---
-@app.route('/download_pdf', methods=['POST'])
-def download_pdf():
-    text = request.form['resume_text']
+    # Create PDF
     buffer = BytesIO()
-    p = canvas.Canvas(buffer, pagesize=letter)
-    y = 750
-    for line in text.split('\n'):
-        p.drawString(40, y, line.strip())
-        y -= 15
-        if y < 40:
-            p.showPage()
-            y = 750
-    p.save()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    story = []
+
+    story.append(Paragraph("Job Match Report", styles['Title']))
+    story.append(Spacer(1, 0.2 * inch))
+    
+    story.append(Paragraph(f"<b>Match Score:</b> {match_score}%", styles['Normal']))
+    story.append(Paragraph(f"<b>Semantic Score:</b> {semantic_score}%", styles['Normal']))
+    story.append(Paragraph(f"<b>Keyword Score:</b> {keyword_score}%", styles['Normal']))
+    
+    story.append(Spacer(1, 0.2 * inch))
+    
+    story.append(Paragraph("<b>Matched Keywords:</b>", styles['Heading2']))
+    for kw in matched_keywords:
+        story.append(Paragraph(f"- {kw}", styles['Normal']))
+    
+    story.append(Spacer(1, 0.2 * inch))
+    
+    story.append(Paragraph("<b>Missing Keywords:</b>", styles['Heading2']))
+    for kw in missing_keywords:
+        story.append(Paragraph(f"- {kw}", styles['Normal']))
+
+    doc.build(story)
+    
     buffer.seek(0)
-    return send_file(buffer, as_attachment=True, download_name='Improved_Resume.pdf', mimetype='application/pdf')
+    
+    return send_file(buffer, as_attachment=True, download_name="job_match_report.pdf", mimetype='application/pdf')   
+
+
 
 # --- Job Tracker ---
 @app.route('/tracker', methods=['GET', 'POST'])
@@ -149,6 +173,54 @@ def tracker():
 
 
     return render_template('tracker.html', jobs=jobs)
+
+@app.route('/edit/<int:job_id>', methods=['GET', 'POST'])
+def edit_job(job_id):
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+    cur.execute("SELECT * FROM applications WHERE id = %s", (job_id,))
+    job = cur.fetchone()
+
+    if not job:
+        flash("Job not found.", "danger")
+        return redirect(url_for('tracker'))
+
+    if request.method == 'POST':
+        company = request.form['company']
+        title = request.form['title']
+        status = request.form['status']
+        deadline = request.form['deadline']
+        score = request.form['score']
+
+        cur.execute("""
+            UPDATE applications
+            SET company_name = %s, job_title = %s, status = %s, deadline = %s, match_score = %s
+            WHERE id = %s
+        """, (company, title, status, deadline, score, job_id))
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        flash("Job updated successfully!", "success")
+        return redirect(url_for('tracker'))
+
+    cur.close()
+    conn.close()
+    return render_template('edit_job.html', job=job)
+
+@app.route('/delete/<int:job_id>', methods=['POST'])
+def delete_job(job_id):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    cur.execute("DELETE FROM applications WHERE id = %s", (job_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    flash("Job deleted successfully.", "success")
+    return redirect(url_for('tracker'))
+
+
 
 
 # --- Score Plot Dashboard ---
@@ -247,7 +319,7 @@ def score_plot():
     top_companies = [x[0] for x in sorted_data]
     top_scores = [x[1] for x in sorted_data]
     fig6a, ax6a = plt.subplots()
-    ax6a.barh(top_companies, top_scores, color="#60A5FA")  # Blue-700
+    ax6a.barh(top_companies, top_scores, color="#0693D4")  # Blue-700
     ax6a.set_title("🏆 Top Companies by Resume Match")
     ax6a.invert_yaxis()
     top_chart_url = generate_chart_image(fig6a)
@@ -257,7 +329,7 @@ def score_plot():
     months_applied = sorted(month_counter.keys())
     count_applied = [month_counter[m] for m in months_applied]
     fig7a, ax7a = plt.subplots()
-    ax7a.bar(months_applied, count_applied, color="#73B9B9F6")  # Blue-200
+    ax7a.bar(months_applied, count_applied, color="#093672F6")  # Blue-200
     ax7a.set_title("📅 Applications per Month")
     ax7a.set_xlabel("Month")
     ax7a.set_ylabel("Applications")

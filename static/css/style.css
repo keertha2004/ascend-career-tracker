@@ -80,6 +80,51 @@ body {
   margin-bottom: 2rem;
 }
 
+.fa-edit {
+  color: #555;
+  font-size: 18px;
+  margin-left: 10px;
+  cursor: pointer;
+}
+.fa-edit:hover {
+  color: #007bff;
+}
+
+.danger-btn {
+  background-color: #e74c3c;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.danger-btn:hover {
+  background-color: #c0392b;
+}
+.btn-icon {
+  background: none;
+  border: none;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 6px 8px;
+  transition: background 0.2s ease;
+  border-radius: 6px;
+}
+
+.btn-icon:hover {
+  background-color: #e0e0e0;
+}
+
+.danger-btn {
+  color: #e74c3c;
+}
+
+.danger-btn:hover {
+  background-color: #fcebea;
+}
+
 
 
 /* === Headings === */
@@ -622,4 +667,41 @@ body {
 
 .link-text a:hover {
   text-decoration: underline;
+}
+
+.progress-circle {
+  width: 130px;
+  height: 130px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.progress-circle svg {
+  transform: rotate(-90deg);
+  width: 100%;
+  height: 100%;
+}
+
+.progress-circle .circle-bg {
+  fill: none;
+  stroke: #eee;
+  stroke-width: 3.8;
+}
+
+.progress-circle .circle {
+  fill: none;
+  stroke: #4a63cf;
+  stroke-width: 3.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 1s ease-out;
+}
+
+.progress-circle .progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #3a6ad1;
 }

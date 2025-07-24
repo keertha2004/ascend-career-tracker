@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Job | Ascend Career</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+</head>
+<body style="font-family: 'Inter', sans-serif; background-color: #f9f9f9;">
+
+  <!-- 🌐 Navbar -->
+  <nav class="navbar">
+    <h1 class="logo">📝 Ascend Career</h1>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/upload">Upload Resume</a>
+      <a href="/score-plot">Stats Comparison</a>
+    </div>
+  </nav>
+
+  <!-- ✏️ Edit Job Section -->
+  <section class="container" style="max-width: 960px; margin: 2rem auto;">
+    <div class="card">
+      <h2>Edit Job Application</h2>
+      <form method="POST" class="form">
+        <div class="form-group">
+          <label for="company">Company</label>
+          <input type="text" name="company" id="company" value="{{ job.company_name }}" required>
+        </div>
+        <div class="form-group">
+          <label for="title">Job Title</label>
+          <input type="text" name="title" id="title" value="{{ job.job_title }}" required>
+        </div>
+        <div class="form-group">
+          <label for="status">Status</label>
+          <select name="status" id="status" required>
+            <option value="Applied" {% if job.status == 'Applied' %}selected{% endif %}>Applied</option>
+            <option value="Interviewing" {% if job.status == 'Interviewing' %}selected{% endif %}>Interviewing</option>
+            <option value="Offer" {% if job.status == 'Offer' %}selected{% endif %}>Offer</option>
+            <option value="Rejected" {% if job.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="deadline">Deadline</label>
+          <input type="date" name="deadline" id="deadline" value="{{ job.deadline }}" required>
+        </div>
+        <div class="form-group">
+          <label for="score">Match Score (%)</label>
+          <input type="number" name="score" step="0.01" id="score" value="{{ job.match_score }}" required>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn primary-btn">💾 Save Changes</button>
+          <a href="{{ url_for('delete_job', job_id=job.id) }}" class="btn danger-btn" onclick="return confirm('Are you sure you want to delete this job?')">🗑️ Delete</a>
+        </div>
+      </form>
+    </div>
+  </section>
+
+</body>
+</html>

@@ -33,14 +33,14 @@
 
     .nav-links a {
       margin-left: 1.5rem;
-      color: #f6f7f8ec;
+      color: white;
       text-decoration: none;
       font-weight: 500;
       transition: color 0.3s ease;
     }
 
     .nav-links a:hover {
-      color: #2563eb;
+      color: #f9f9f9;
     }
 
     .container {
@@ -155,6 +155,7 @@
     <div class="nav-links">
       <a href="/">Home</a>
       <a href="/tracker">Job Tracker</a>
+      <a href="/logout">Logout</a>
     </div>
   </nav>
 
@@ -178,6 +179,8 @@
       <p style="font-size: 1.8rem; color: #1e40af;"><strong>{{ avg_score }}%</strong></p>
     </div>
   </section>
+
+  
 
   <!-- 🧭 Dashboard Container -->
   <section class="container dashboard-grid">
@@ -207,18 +210,17 @@
       <img src="data:image/png;base64,{{ apps_chart_url }}" alt="Applications Per Month Chart" class="chart-img">
     </div>
 
-    <div class="card">
-      <h2>Avg Score by Status</h2>
-      <p>Shows how your resume performs across different application stages.</p>
-      <img src="data:image/png;base64,{{ skills_chart_url }}" alt="Avg Score by Status Chart" class="chart-img">
-    </div>
-
-    <div class="card">
+     <div class="card">
       <h2>Top Companies</h2>
       <p>Companies where your resume scored the highest.</p>
       <img src="data:image/png;base64,{{ top_chart_url }}" alt="Top Companies Chart" class="chart-img">
     </div>
 
+    <div class="card">
+      <h2>Avg Score by Status</h2>
+      <p>Shows how your resume performs across different application stages.</p>
+      <img src="data:image/png;base64,{{ skills_chart_url }}" alt="Avg Score by Status Chart" class="chart-img">
+    </div>
   
   </section>
 
@@ -236,6 +238,8 @@
     <p>Driven by AI. Designed for Your Growth.</p>
     <p>© 2025 Ascend Career</p>
   </footer>
+
+  
 </body>
 </html>
 
