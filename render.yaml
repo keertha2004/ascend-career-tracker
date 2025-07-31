@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: ascend-career-tracker
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    envVars:
+      - key: FLASK_SECRET_KEY
+        sync: false
+      - key: DB_HOST
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+    disk:
+      name: uploads
+      mountPath: /opt/app/uploads
+      sizeGB: 1
